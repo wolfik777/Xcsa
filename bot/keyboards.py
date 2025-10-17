@@ -35,14 +35,15 @@ def get_tools_menu() -> InlineKeyboardMarkup:
     )
     builder.row(
         InlineKeyboardButton(text="🔗 Сократить ссылку", callback_data="tool_shorturl"),
-        InlineKeyboardButton(text="📝 Конвертер", callback_data="tool_converter")
-    )
-    builder.row(
-        InlineKeyboardButton(text="🎨 Обработать фото", callback_data="tool_image"),
         InlineKeyboardButton(text="💱 Конвертер валют", callback_data="tool_currency")
     )
     builder.row(
-        InlineKeyboardButton(text="🌤 Погода", callback_data="tool_weather")
+        InlineKeyboardButton(text="🎲 Генератор паролей", callback_data="tool_password"),
+        InlineKeyboardButton(text="🔍 Wikipedia", callback_data="tool_wiki")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🧮 Калькулятор", callback_data="tool_calc"),
+        InlineKeyboardButton(text="📸 Сжать фото", callback_data="tool_compress")
     )
     builder.row(
         InlineKeyboardButton(text="« Назад", callback_data="back_main")
