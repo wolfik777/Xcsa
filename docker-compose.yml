@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: telegram_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./downloads:/app/downloads
+      - ./logs:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - bot_network
+
+  db:
+    image: postgres:15-alpine
+    container_name: bot_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: telegram_bot
+      POSTGRES_USER: botuser
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bot_network
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: bot_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - bot_network
+    ports:
+      - "6379:6379"
+
+  # Adminer для управления БД (опционально)
+  adminer:
+    image: adminer:latest
+    container_name: bot_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - bot_network
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  bot_network:
+    driver: bridge
+
