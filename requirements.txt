@@ -1,11 +1,12 @@
 # Core Bot Framework
 aiogram==3.13.1
-aiohttp==3.10.5
+aiohttp==3.9.5
 aiofiles==24.1.0
 
 # Database
 sqlalchemy==2.0.35
 asyncpg==0.29.0
+aiosqlite==0.20.0
 alembic==1.13.3
 
 # Redis for caching
@@ -15,7 +16,7 @@ hiredis==3.0.0
 # Download Services
 yt-dlp==2024.10.7
 instaloader==4.13
-tiktok-api==0.2.0
+tiktok-api==0.10.5
 
 # Media Processing
 Pillow==10.4.0

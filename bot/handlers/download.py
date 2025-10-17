@@ -41,12 +41,20 @@ async def download_start(message: Message, state: FSMContext):
 
 
 @router.message(DownloadStates.waiting_url)
-@router.message(F.text, ~F.text.startswith("/"), ~F.text.in_([
-    "📥 Скачать видео/музыку", "🛠 Инструменты", "🎁 Реферальная программа",
-    "📊 Моя статистика", "🏆 Топ рефералов", "❓ Помощь"
-]))
 async def process_url(message: Message, state: FSMContext, session: AsyncSession):
     """Process URL for download"""
+    # Check if user wants to cancel
+    if message.text == "❌ Отмена":
+        await state.clear()
+        await message.answer("❌ Отменено", reply_markup=get_main_menu())
+        return
+    
+    # Check if it's a menu button
+    if message.text in ["📥 Скачать видео/музыку", "🛠 Инструменты", "🎁 Реферальная программа",
+                        "📊 Моя статистика", "🏆 Топ рефералов", "❓ Помощь"]:
+        await state.clear()
+        return
+    
     url = message.text.strip()
     
     # Check if it's a valid URL
@@ -113,11 +121,13 @@ async def select_format(callback: CallbackQuery, state: FSMContext, session: Asy
     
     if format_type == "cancel":
         await state.clear()
-        await callback.message.edit_text("❌ Отменено")
+        await callback.message.delete()
+        await callback.message.answer("❌ Отменено", reply_markup=get_main_menu())
         await callback.answer()
         return
     
     await callback.answer()
+    await callback.message.delete()
     await start_download(callback.message, state, session, format_type)
 
 

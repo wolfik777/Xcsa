@@ -26,9 +26,11 @@ class ToolStates(StatesGroup):
 async def qr_tool(callback: CallbackQuery, state: FSMContext):
     """QR code generator"""
     await state.set_state(ToolStates.waiting_qr_text)
-    await callback.message.edit_text(
+    await callback.message.delete()
+    await callback.message.answer(
         "📊 <b>Генератор QR-кодов</b>\n\n"
-        "Отправь текст или ссылку для создания QR-кода:"
+        "Отправь текст или ссылку для создания QR-кода:",
+        reply_markup=get_main_menu()
     )
     await callback.answer()
 
@@ -36,9 +38,13 @@ async def qr_tool(callback: CallbackQuery, state: FSMContext):
 @router.message(ToolStates.waiting_qr_text)
 async def generate_qr(message: Message, state: FSMContext):
     """Generate QR code"""
-    if message.text == "❌ Отмена":
+    # Check if user wants to cancel or use menu
+    if message.text in ["❌ Отмена", "📥 Скачать видео/музыку", "🛠 Инструменты", 
+                        "🎁 Реферальная программа", "📊 Моя статистика", 
+                        "🏆 Топ рефералов", "❓ Помощь"]:
         await state.clear()
-        await message.answer("❌ Отменено", reply_markup=get_main_menu())
+        if message.text == "❌ Отмена":
+            await message.answer("❌ Отменено", reply_markup=get_main_menu())
         return
     
     try:
@@ -82,10 +88,12 @@ async def generate_qr(message: Message, state: FSMContext):
 async def translator_tool(callback: CallbackQuery, state: FSMContext):
     """Translator tool"""
     await state.set_state(ToolStates.waiting_translate_text)
-    await callback.message.edit_text(
+    await callback.message.delete()
+    await callback.message.answer(
         "🌐 <b>Переводчик</b>\n\n"
         "Отправь текст для перевода.\n"
-        "Язык будет определен автоматически, перевод на русский или английский."
+        "Язык будет определен автоматически, перевод на русский или английский.",
+        reply_markup=get_main_menu()
     )
     await callback.answer()
 
@@ -93,9 +101,13 @@ async def translator_tool(callback: CallbackQuery, state: FSMContext):
 @router.message(ToolStates.waiting_translate_text)
 async def translate_text(message: Message, state: FSMContext):
     """Translate text"""
-    if message.text == "❌ Отмена":
+    # Check if user wants to cancel or use menu
+    if message.text in ["❌ Отмена", "📥 Скачать видео/музыку", "🛠 Инструменты", 
+                        "🎁 Реферальная программа", "📊 Моя статистика", 
+                        "🏆 Топ рефералов", "❓ Помощь"]:
         await state.clear()
-        await message.answer("❌ Отменено", reply_markup=get_main_menu())
+        if message.text == "❌ Отмена":
+            await message.answer("❌ Отменено", reply_markup=get_main_menu())
         return
     
     try:
@@ -154,9 +166,11 @@ async def translate_text(message: Message, state: FSMContext):
 async def shorturl_tool(callback: CallbackQuery, state: FSMContext):
     """URL shortener tool"""
     await state.set_state(ToolStates.waiting_short_url)
-    await callback.message.edit_text(
+    await callback.message.delete()
+    await callback.message.answer(
         "🔗 <b>Сокращение ссылок</b>\n\n"
-        "Отправь длинную ссылку для сокращения:"
+        "Отправь длинную ссылку для сокращения:",
+        reply_markup=get_main_menu()
     )
     await callback.answer()
 
@@ -164,9 +178,13 @@ async def shorturl_tool(callback: CallbackQuery, state: FSMContext):
 @router.message(ToolStates.waiting_short_url)
 async def shorten_url(message: Message, state: FSMContext):
     """Shorten URL"""
-    if message.text == "❌ Отмена":
+    # Check if user wants to cancel or use menu
+    if message.text in ["❌ Отмена", "📥 Скачать видео/музыку", "🛠 Инструменты", 
+                        "🎁 Реферальная программа", "📊 Моя статистика", 
+                        "🏆 Топ рефералов", "❓ Помощь"]:
         await state.clear()
-        await message.answer("❌ Отменено", reply_markup=get_main_menu())
+        if message.text == "❌ Отмена":
+            await message.answer("❌ Отменено", reply_markup=get_main_menu())
         return
     
     try:
@@ -200,43 +218,43 @@ async def shorten_url(message: Message, state: FSMContext):
 @router.callback_query(F.data == "tool_converter")
 async def converter_tool(callback: CallbackQuery):
     """File converter tool"""
-    await callback.message.edit_text(
+    await callback.answer("Эта функция в разработке! 🔧")
+    await callback.message.answer(
         "📝 <b>Конвертер файлов</b>\n\n"
         "Эта функция в разработке.\n"
         "Скоро добавим конвертацию PDF, Word, изображений и других форматов!"
     )
-    await callback.answer()
 
 
 @router.callback_query(F.data == "tool_image")
 async def image_tool(callback: CallbackQuery):
     """Image processing tool"""
-    await callback.message.edit_text(
+    await callback.answer("Эта функция в разработке! 🔧")
+    await callback.message.answer(
         "🎨 <b>Обработка изображений</b>\n\n"
         "Эта функция в разработке.\n"
         "Скоро добавим сжатие, изменение размера и другие функции!"
     )
-    await callback.answer()
 
 
 @router.callback_query(F.data == "tool_currency")
 async def currency_tool(callback: CallbackQuery):
     """Currency converter tool"""
-    await callback.message.edit_text(
+    await callback.answer("Эта функция в разработке! 🔧")
+    await callback.message.answer(
         "💱 <b>Конвертер валют</b>\n\n"
         "Эта функция в разработке.\n"
         "Скоро добавим конвертацию валют с актуальными курсами!"
     )
-    await callback.answer()
 
 
 @router.callback_query(F.data == "tool_weather")
 async def weather_tool(callback: CallbackQuery):
     """Weather tool"""
-    await callback.message.edit_text(
+    await callback.answer("Эта функция в разработке! 🔧")
+    await callback.message.answer(
         "🌤 <b>Погода</b>\n\n"
         "Эта функция в разработке.\n"
         "Скоро добавим прогноз погоды для вашего города!"
     )
-    await callback.answer()
 

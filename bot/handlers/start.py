@@ -121,7 +121,8 @@ async def admin_stats(message: Message, session: AsyncSession):
 @router.callback_query(F.data == "back_main")
 async def back_to_main(callback: CallbackQuery):
     """Return to main menu"""
-    await callback.message.edit_text(
+    await callback.message.delete()
+    await callback.message.answer(
         "👋 Главное меню",
         reply_markup=get_main_menu()
     )

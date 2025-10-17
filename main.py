@@ -8,6 +8,7 @@ from loguru import logger
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot.config import config
 from bot.database import init_db
@@ -43,7 +44,8 @@ async def main():
         token=config.token,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
-    dp = Dispatcher()
+    storage = MemoryStorage()
+    dp = Dispatcher(storage=storage)
     
     # Add middleware
     dp.message.middleware(DatabaseMiddleware())
