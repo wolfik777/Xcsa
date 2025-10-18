@@ -2,6 +2,7 @@
 Download handlers
 """
 import os
+import html
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.fsm.context import FSMContext
@@ -35,7 +36,9 @@ async def download_start(message: Message, state: FSMContext):
         "• TikTok\n"
         "• Instagram\n"
         "• Twitter/X\n"
-        "• Facebook",
+        "• Facebook\n"
+        "• VK (ВКонтакте)\n"
+        "• Rutube",
         reply_markup=get_main_menu()
     )
 
@@ -79,9 +82,11 @@ async def process_url(message: Message, state: FSMContext, session: AsyncSession
         "instagram": config.enable_instagram,
         "twitter": config.enable_twitter,
         "facebook": True,  # Always enabled
+        "vk": True,  # Always enabled
+        "rutube": True,  # Always enabled
     }
     
-    if not platform_enabled.get(platform, False):
+    if not platform_enabled.get(platform, True):
         await message.answer(
             f"❌ Скачивание с {platform.title()} временно недоступно.",
             reply_markup=get_main_menu()
@@ -129,6 +134,76 @@ async def select_format(callback: CallbackQuery, state: FSMContext, session: Asy
     await callback.answer()
     await callback.message.delete()
     await start_download(callback.message, state, session, format_type)
+
+
+@router.message(F.text)
+async def handle_direct_url(message: Message, state: FSMContext, session: AsyncSession):
+    """Handle direct URL without clicking download button"""
+    # ВАЖНО: Проверяем что пользователь НЕ в состоянии ввода для инструментов
+    current_state = await state.get_state()
+    if current_state is not None:
+        return  # Пользователь в другом состоянии, пропускаем
+    
+    # Skip if it's a command or menu button
+    if message.text.startswith('/') or message.text in [
+        "📥 Скачать видео/музыку", "🛠 Инструменты", "🎁 Реферальная программа",
+        "📊 Моя статистика", "🏆 Топ рефералов", "❓ Помощь", "❌ Отмена"
+    ]:
+        return
+    
+    # Check if it's a URL
+    url = message.text.strip()
+    if not URLParser.is_valid_url(url):
+        return  # Not a URL, ignore
+    
+    # Detect platform
+    platform, clean_url = URLParser.parse_url(url)
+    
+    if not platform:
+        return  # Not a supported platform, ignore
+    
+    # Check if platform is enabled
+    platform_enabled = {
+        "youtube": config.enable_youtube,
+        "tiktok": config.enable_tiktok,
+        "instagram": config.enable_instagram,
+        "twitter": config.enable_twitter,
+        "facebook": True,
+        "vk": True,
+        "rutube": True,
+    }
+    
+    if not platform_enabled.get(platform, True):
+        await message.answer(
+            f"❌ Скачивание с {platform.title()} временно недоступно.",
+            reply_markup=get_main_menu()
+        )
+        return
+    
+    # Check rate limit
+    user = await UserCRUD.get_by_id(session, message.from_user.id)
+    if user and not user.is_premium:
+        downloads_today = await DownloadCRUD.get_user_downloads_today(session, message.from_user.id)
+        if downloads_today >= config.max_downloads_per_day:
+            await message.answer(
+                messages.RATE_LIMIT.format(size=config.max_file_size_mb),
+                reply_markup=get_main_menu()
+            )
+            return
+    
+    # Save URL to state
+    await state.update_data(url=clean_url, platform=platform)
+    
+    # Show format selection for YouTube
+    if platform == "youtube":
+        await state.set_state(DownloadStates.waiting_format)
+        await message.answer(
+            "🎯 <b>Выбери формат:</b>",
+            reply_markup=get_download_format_keyboard(platform)
+        )
+    else:
+        # Download directly for other platforms
+        await start_download(message, state, session, "default")
 
 
 async def start_download(message: Message, state: FSMContext, session: AsyncSession, format_type: str):
@@ -201,7 +276,8 @@ async def start_download(message: Message, state: FSMContext, session: AsyncSess
         downloader.cleanup_file(file_path)
         
     except DownloadError as e:
-        await status_msg.edit_text(f"{messages.DOWNLOAD_ERROR}\n\n<i>{str(e)}</i>")
+        error_text = html.escape(str(e))
+        await status_msg.edit_text(f"{messages.DOWNLOAD_ERROR}\n\n<i>{error_text}</i>")
         
         # Save error to database
         await DownloadCRUD.create(

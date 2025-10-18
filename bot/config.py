@@ -34,6 +34,9 @@ class BotConfig:
     enable_twitter: bool = True
     enable_premium: bool = True
     
+    # Proxy для YouTube (формат: http://user:pass@ip:port)
+    youtube_proxy: Optional[str] = None
+    
     # Logging
     log_level: str = "INFO"
     
@@ -60,6 +63,7 @@ def load_config() -> BotConfig:
         enable_instagram=os.getenv("ENABLE_INSTAGRAM", "true").lower() == "true",
         enable_twitter=os.getenv("ENABLE_TWITTER", "true").lower() == "true",
         enable_premium=os.getenv("ENABLE_PREMIUM", "true").lower() == "true",
+        youtube_proxy=os.getenv("YOUTUBE_PROXY"),
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         webhook_host=os.getenv("WEBHOOK_HOST"),
         webhook_path=os.getenv("WEBHOOK_PATH"),
@@ -85,12 +89,17 @@ class Messages:
 • Instagram (посты/stories/reels)
 • Twitter/X
 • Facebook
+• VK (ВКонтакте)
+• Rutube
 
 🛠 <b>Инструменты:</b>
-• Конвертер файлов
-• Переводчик
+• Конвертер валют (реальные курсы!)
+• Переводчик (выбор языка!)
 • QR-коды
 • Сокращение ссылок
+• Wikipedia
+• Калькулятор
+• Погода
 • Обработка изображений
 
 🎁 <b>Реферальная программа:</b>
@@ -117,7 +126,7 @@ class Messages:
 
     DOWNLOADING = "⏳ Скачиваю... Пожалуйста, подожди."
     DOWNLOAD_ERROR = "❌ Ошибка при скачивании. Проверь ссылку и попробуй снова."
-    UNSUPPORTED_LINK = "❌ Эта ссылка не поддерживается. Поддерживаемые: YouTube, TikTok, Instagram, Twitter/X, Facebook."
+    UNSUPPORTED_LINK = "❌ Эта ссылка не поддерживается. Поддерживаемые: YouTube, TikTok, Instagram, Twitter/X, Facebook, VK, Rutube."
     FILE_TOO_LARGE = "❌ Файл слишком большой. Максимальный размер: {size} MB."
     RATE_LIMIT = "⏳ Превышен лимит загрузок на сегодня. Попробуй завтра или приглашай друзей для увеличения лимита!"
     
@@ -145,14 +154,15 @@ class Messages:
 Просто отправь ссылку на видео или пост.
 
 <b>Инструменты:</b>
-• 🌐 Переводчик - перевод текста
+• 🌐 Переводчик - выбор языка перевода
 • 📊 QR-код - генератор QR
 • 🔗 Сократить ссылку - TinyURL
-• 💱 Конвертер валют - актуальные курсы
+• 💱 Конвертер валют - реальные курсы
 • 🎲 Генератор паролей - безопасные пароли
 • 🔍 Wikipedia - быстрый поиск
 • 🧮 Калькулятор - вычисления
 • 📸 Сжать фото - уменьшение размера
+• 🌤 Погода - прогноз для городов
 
 <b>Команды:</b>
 /start - Главное меню
@@ -161,11 +171,13 @@ class Messages:
 /help - Помощь
 
 <b>Скачивание с:</b>
-• YouTube (видео/аудио)
+• YouTube (видео/аудио) - работает из любой страны!
 • TikTok (без водяных знаков)
 • Instagram (посты/reels/stories)
 • Twitter/X
 • Facebook
+• VK (ВКонтакте)
+• Rutube
 
 Есть вопросы? Напиши @admin
 """

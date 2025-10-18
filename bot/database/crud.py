@@ -108,6 +108,17 @@ class UserCRUD:
             .where(User.referral_count > user.referral_count)
         )
         return result.scalar() + 1
+    
+    @staticmethod
+    async def get_referrals(session: AsyncSession, user_id: int, limit: int = 10) -> List[User]:
+        """Get list of users referred by this user"""
+        result = await session.execute(
+            select(User)
+            .where(User.referrer_id == user_id)
+            .order_by(desc(User.created_at))
+            .limit(limit)
+        )
+        return list(result.scalars().all())
 
 
 class DownloadCRUD:

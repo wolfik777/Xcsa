@@ -46,6 +46,9 @@ def get_tools_menu() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="📸 Сжать фото", callback_data="tool_compress")
     )
     builder.row(
+        InlineKeyboardButton(text="🌤 Погода", callback_data="tool_weather")
+    )
+    builder.row(
         InlineKeyboardButton(text="« Назад", callback_data="back_main")
     )
     
@@ -71,7 +74,7 @@ def get_download_format_keyboard(platform: str) -> InlineKeyboardMarkup:
         )
     
     builder.row(
-        InlineKeyboardButton(text="❌ Отмена", callback_data="cancel")
+        InlineKeyboardButton(text="❌ Отмена", callback_data="format_cancel")
     )
     
     return builder.as_markup()
